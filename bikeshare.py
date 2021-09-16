@@ -8,8 +8,9 @@ CITY_DATA = {'chicago': 'chicago.csv',
              'new york city': 'new_york_city.csv',
              'washington': 'washington.csv'}
 MONTHS = clndr.month_name[1:]
+MONTHS.append('all'.title())
 DAYS = clndr.day_name[1:]
-
+DAYS.append('all'.title())
 
 def get_filters():
     """
@@ -30,29 +31,39 @@ def get_filters():
         city = input('Which city would you like to discover (chicago, new york city, washington)/chicago is the default:')
         if not city:
             city = 'chicago'
-        break
 
     # TO DO: get user input for month (all, january, february, ... , june)
-    while month.lower() not in [x.lower for x in MONTHS]:
-        month = input('Which month would you like to check (all is the default):')
-        month_char = month
-        if not month or month.lower() == 'all':
-            month = 'all'
-            month_char = 'all'
+    while True:
+        try:
+            month = str(input('Which month would you like to check (all is the default):'))
+            if month.title() not in MONTHS:
+                raise ValueError
+        except ValueError:
+            print('sorry this is not a valid month, please try again!')
         else:
-            month = str(MONTHS.index(month.title())+1)
-        break
+            if month == 'all':
+                month = 'all'
+            else:
+                month = str(MONTHS.index(month.title())+1)
+            break
 
     # TO DO: get user input for day of week (all, monday, tuesday, ... sunday)
-    while day.lower() not in [x.lower for x in DAYS]:
-        day = input('Which day would you like to check (all is the default):')
-        if not day or day.lower() == 'all':
-            day = 'all'
+    while True:
+        try:
+            day = str(input('Which day would you like to check (all is the default):'))
+            if day.title() not in DAYS:
+                raise ValueError
+        except ValueError:
+            print('sorry this is not a valid day, please try again!')
         else:
-            day = day
-        break
+            if day == 'all':
+                day = 'all'
+            else:
+                day = day
+            break
+
     print('-'*40)
-    print('Running parameters are:\nCity\t=', city, '\nMonth\t=', month_char, '\nDay\t=', day)
+    print('Running parameters are:\nCity\t=', city, '\nMonth\t=', month, '\nDay\t=', day)
     return city, month, day
 
 
