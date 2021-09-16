@@ -239,7 +239,7 @@ def main():
                     continue
 
         else:
-            print('!'*40,'\nSorry, No data were found for the selected parameters.')
+            print('!'*40,' \nSorry, No data were found for the selected parameters.')
 
         restart = input('\nWould you like to restart? Enter yes or no.\n')
         if restart.lower() != 'yes':
