@@ -80,7 +80,7 @@ def get_filters():
 
     print('-'*40)
     print('Running parameters are:\nCity\t=', city, '\nMonth\t=', month, '\nDay\t=', day)
-    return city, month, day
+    return city.lower(), month, day.lower()
 
 
 def load_data(city, month, day):
@@ -106,7 +106,6 @@ def load_data(city, month, day):
 
     if day.lower() != 'all':
         df = df[df['day_of_week'] == day.title()]
-    # print(df.head())
     return df
 
 
@@ -139,16 +138,22 @@ def station_stats(df):
     start_time = time.time()
 
     # TO DO: display most commonly used start station
-    most_common_start_station = df['Start Station'].mode()[0]
-    print('Most common start station is: {}'.format(most_common_start_station))
+    popular_start_station = df.groupby('Start Station').size().to_frame(name='size')
+    popular_start_station_name = popular_start_station.idxmax()[0]
+    popular_start_station_count = popular_start_station.max()[0]
+    print('Most common start station is: {} with count of {}'.format(popular_start_station_name,popular_start_station_count))
 
     # TO DO: display most commonly used end station
-    most_common_end_station = df['End Station'].mode()[0]
-    print('Most common End station is: {}'.format(most_common_end_station))
+    popular_end_station = df.groupby('End Station').size().to_frame(name='size')
+    popular_end_station_name = popular_end_station.idxmax()[0]
+    popular_end_station_count = popular_end_station.max()[0]
+    print('Most common end station is: {} with count of {}'.format(popular_end_station_name,popular_end_station_count))
 
     # TO DO: display most frequent combination of start station and end station trip
-    most_common_start_end_station = df.groupby(['Start Station', 'End Station']).size().idxmax()
-    print('Most common Start & End station is: {}'.format(most_common_start_end_station))
+    popular_start_end_station = df.groupby(['Start Station', 'End Station']).size().to_frame(name='size')
+    popular_start_end_station_name = popular_start_end_station.idxmax()[0]
+    popular_start_end_station_count = popular_start_end_station.max()[0]
+    print('Most common Start & End station are: {} with count of {}'.format(popular_start_end_station_name,popular_start_end_station_count))
 
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-'*40)
@@ -161,8 +166,8 @@ def trip_duration_stats(df):
     start_time = time.time()
 
     # TO DO: display total travel time
-    total_travel_time = round(df['Trip Duration'].sum()/3600.0, 2)
-    print('Total travel time is: {} hours'.format(total_travel_time))
+    total_travel_time = round(df['Trip Duration'].sum()/3600.0/24, 2)
+    print('Total travel time is: {} days'.format(total_travel_time))
 
     # TO DO: display mean travel time
     mean_travel_time = round(df['Trip Duration'].mean()/60.0, 2)
@@ -179,12 +184,8 @@ def user_stats(df):
     start_time = time.time()
 
     # TO DO: Display counts of user types
-    user_types = df['User Type'].unique()
-    print('User trypes are:')
-
-    for user_type in user_types:
-        print('  ',user_type)
-
+    user_types = df['User Type'].value_counts()
+    print('User trypes are:\n{}\n'.format(pd.DataFrame(user_types)))
     print('-'*40)
 
     if 'Gender' in df:
@@ -221,8 +222,24 @@ def main():
             station_stats(df)
             trip_duration_stats(df)
             user_stats(df)
+            x = 0
+            while True:
+                try:
+                    raw_data_check = input('Do you want to check a sample of the raw data (Yes/No)?')
+                    if raw_data_check.lower() != 'yes':
+                        raise ValueError
+                    elif raw_data_check.lower() == 'yes':
+                        for i in range(x, x+5):
+                            print(df.iloc[i, 1:-3].to_frame())
+                            print('*'*50)
+                except ValueError:
+                    break
+                else:
+                    x += 5
+                    continue
+
         else:
-            print('Sorry, No data were found for the selected parameters.')
+            print('!'*40,'\nSorry, No data were found for the selected parameters.')
 
         restart = input('\nWould you like to restart? Enter yes or no.\n')
         if restart.lower() != 'yes':
