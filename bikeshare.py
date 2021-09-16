@@ -9,7 +9,7 @@ CITY_DATA = {'chicago': 'chicago.csv',
              'washington': 'washington.csv'}
 MONTHS = clndr.month_name[1:]
 MONTHS.append('all'.title())
-DAYS = clndr.day_name[1:]
+DAYS = clndr.day_name[0:]
 DAYS.append('all'.title())
 
 
