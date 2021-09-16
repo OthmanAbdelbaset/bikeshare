@@ -12,6 +12,7 @@ MONTHS.append('all'.title())
 DAYS = clndr.day_name[1:]
 DAYS.append('all'.title())
 
+
 def get_filters():
     """
     Asks user to specify a city, month, and day to analyze.
@@ -27,16 +28,28 @@ def get_filters():
     month = ''
     day = ''
 
-    while city.lower() not in ('chicago', 'new york city', 'washington'):
-        city = input('Which city would you like to discover (chicago, new york city, washington)/chicago is the default:')
-        if not city:
-            city = 'chicago'
+    while True:
+        try:
+            city = input('Which city would you like to discover {}:'.format(list(CITY_DATA.keys())))
+            if not city:
+                city = 'chicago'
+                break
+            elif city.lower() not in list(CITY_DATA.keys()):
+                raise ValueError
+        except ValueError:
+            print('sorry this is not a valid city, please try again!')
+        else:
+            city = city
+            break
 
     # TO DO: get user input for month (all, january, february, ... , june)
     while True:
         try:
-            month = str(input('Which month would you like to check (all is the default):'))
-            if month.title() not in MONTHS:
+            month = str(input('Which month would you like to check {} - \'all\' is the defualt if nothing selected:\n'.format(MONTHS)))
+            if not month:
+                month = 'all'
+                break
+            elif month.title() not in MONTHS:
                 raise ValueError
         except ValueError:
             print('sorry this is not a valid month, please try again!')
@@ -50,8 +63,11 @@ def get_filters():
     # TO DO: get user input for day of week (all, monday, tuesday, ... sunday)
     while True:
         try:
-            day = str(input('Which day would you like to check (all is the default):'))
-            if day.title() not in DAYS:
+            day = str(input('Which day would you like to check {} - \'all\' is the defualt if nothing selected:\n'.format(DAYS)))
+            if not day:
+                day = 'all'
+                break
+            elif day.title() not in DAYS:
                 raise ValueError
         except ValueError:
             print('sorry this is not a valid day, please try again!')
@@ -84,9 +100,6 @@ def load_data(city, month, day):
     df['month'] = df['Start Time'].dt.month
     df['day_of_week'] = df['Start Time'].dt.strftime("%A")
     df['hour'] = df['Start Time'].dt.hour
-
-
-    # print(df.head(50))
 
     if month.lower() != 'all':
         df = df[df['month'] == int(month)]
@@ -188,7 +201,6 @@ def user_stats(df):
         largst_dob = int(df['Birth Year'].max())
         common_dob = int(df['Birth Year'].mode())
 
-
         print('Earliest year of birth is: {}'.format(lowest_dob))
         print('Most recent year of birth is: {}'.format(largst_dob))
         print('Most common year of birth is: {}'.format(common_dob))
@@ -204,11 +216,13 @@ def main():
     while True:
         city, month, day = get_filters()
         df = load_data(city, month, day)
-
-        time_stats(df)
-        station_stats(df)
-        trip_duration_stats(df)
-        user_stats(df)
+        if not df.empty:
+            time_stats(df)
+            station_stats(df)
+            trip_duration_stats(df)
+            user_stats(df)
+        else:
+            print('Sorry, No data were found for the selected parameters.')
 
         restart = input('\nWould you like to restart? Enter yes or no.\n')
         if restart.lower() != 'yes':
